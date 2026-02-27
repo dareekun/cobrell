@@ -30,17 +30,6 @@
 
 ---
 
-## 🖥️ Screenshots
-
-> _Add your screenshot images here._
->
-> ```
-> ![Dashboard](docs/screenshots/dashboard.png)
-> ![Schedule](docs/screenshots/jadwal.png)
-> ```
-
----
-
 ## 📋 Prerequisites
 
 - **Python 3.10+**
