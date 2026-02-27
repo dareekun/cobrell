@@ -1,0 +1,183 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Awal — Cobrell</title>
+    <link rel="stylesheet" href="{% static 'accounts/css/login.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Animated background rings -->
+    <div class="bg-rings">
+        <div class="ring ring-1"></div>
+        <div class="ring ring-2"></div>
+        <div class="ring ring-3"></div>
+    </div>
+
+    <div class="login-container">
+        <!-- Left Panel — Branding -->
+        <div class="brand-panel brand-panel--setup">
+            <div class="brand-content">
+                <div class="bell-icon">
+                    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.12)"/>
+                        <path d="M32 10C32 10 20 14 20 28V40L16 44V46H48V44L44 40V28C44 14 32 10 32 10Z"
+                              fill="white" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+                        <path d="M27 46C27 48.7614 29.2386 51 32 51C34.7614 51 37 48.7614 37 46"
+                              stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="32" cy="10" r="2.5" fill="white"/>
+                        <!-- sound waves -->
+                        <path d="M48 24C50.5 26 51.5 30 51.5 34" stroke="rgba(255,255,255,0.5)" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M52 21C55.5 24 57 30 57 36" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M16 24C13.5 26 12.5 30 12.5 34" stroke="rgba(255,255,255,0.5)" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M12 21C8.5 24 7 30 7 36" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <h1 class="brand-name">Cobrell</h1>
+                <p class="brand-tagline">Sistem Bel Sekolah Otomatis</p>
+
+                <div class="setup-steps">
+                    <div class="setup-step active">
+                        <div class="step-number">1</div>
+                        <div class="step-text">
+                            <strong>Buat Akun Admin</strong>
+                            <span>Daftarkan akun pertama</span>
+                        </div>
+                    </div>
+                    <div class="setup-step">
+                        <div class="step-number">2</div>
+                        <div class="step-text">
+                            <strong>Atur Jadwal Bel</strong>
+                            <span>Konfigurasi jadwal</span>
+                        </div>
+                    </div>
+                    <div class="setup-step">
+                        <div class="step-number">3</div>
+                        <div class="step-text">
+                            <strong>Siap Digunakan</strong>
+                            <span>Bel otomatis aktif</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="brand-footer">
+                <p>&copy; 2026 Cobrell &mdash; Raspberry Pi School Bell System</p>
+            </div>
+        </div>
+
+        <!-- Right Panel — Registration Form -->
+        <div class="form-panel">
+            <div class="form-wrapper">
+                <div class="form-header">
+                    <div class="setup-badge">Setup Awal</div>
+                    <h2>Buat Akun Admin</h2>
+                    <p>Ini adalah pertama kali aplikasi dijalankan. Silakan buat akun administrator untuk memulai.</p>
+                </div>
+
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="post" class="login-form" novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="nama_sekolah">Nama Sekolah</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                <polyline points="9 22 9 12 15 12 15 22"/>
+                            </svg>
+                            <input type="text" id="nama_sekolah" name="nama_sekolah"
+                                   placeholder="Contoh: SDN 1 Semarang"
+                                   value="{{ nama_sekolah|default:'' }}" autofocus>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            <input type="text" id="username" name="username"
+                                   placeholder="Masukkan username admin"
+                                   value="{{ username|default:'' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            <input type="password" id="password" name="password"
+                                   placeholder="Minimal 6 karakter" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password_confirm">Konfirmasi Password</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                            <input type="password" id="password_confirm" name="password_confirm"
+                                   placeholder="Ulangi password" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-login btn-register">
+                        <span>Buat Akun &amp; Mulai</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </form>
+
+                <div class="form-footer">
+                    <p class="device-info">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             width="14" height="14">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                            <line x1="8" y1="21" x2="16" y2="21"/>
+                            <line x1="12" y1="17" x2="12" y2="21"/>
+                        </svg>
+                        Powered by Raspberry Pi
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add focus animation to inputs
+        document.querySelectorAll('.input-wrapper input').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('focused');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.classList.remove('focused');
+            });
+        });
+    </script>
+</body>
+</html>

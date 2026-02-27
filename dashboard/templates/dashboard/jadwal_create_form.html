@@ -1,0 +1,454 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Tambah Jadwal — Cobrell{% endblock %}
+
+{% block content %}
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h2 class="page-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Tambah Jadwal Baru
+                </h2>
+                <p class="page-desc">
+                    Buat jadwal bel baru — pilih hari, waktu, dan musik sekaligus
+                </p>
+            </div>
+            <a href="{% url 'jadwal_list' %}" class="btn-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"/>
+                    <polyline points="12 19 5 12 12 5"/>
+                </svg>
+                Kembali
+            </a>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {% if message.tags == 'success' %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+                {% endif %}
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Form -->
+        <div class="jadwal-form" id="jadwal-form">
+            {% csrf_token %}
+
+            <!-- ─── Section 1: Informasi Dasar ─── -->
+            <div class="form-section">
+                <div class="form-section-header">
+                    <div class="form-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" y1="9" x2="20" y2="9"/>
+                            <line x1="4" y1="15" x2="20" y2="15"/>
+                            <line x1="10" y1="3" x2="8" y2="21"/>
+                            <line x1="16" y1="3" x2="14" y2="21"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="form-section-title">Informasi Dasar</h3>
+                        <p class="form-section-desc">Nama dan pengaturan jadwal bel</p>
+                    </div>
+                </div>
+                <div class="form-section-body">
+                    <div class="form-field">
+                        <label for="nama">Nama Jadwal</label>
+                        <input type="text" id="nama" name="nama"
+                               placeholder="Contoh: Bel Masuk Pagi, Istirahat, Pulang"
+                               value="{{ form_data.nama|default:'' }}">
+                        <span class="form-hint">Keterangan singkat untuk jadwal ini</span>
+                    </div>
+                    <div class="form-field">
+                        <div class="toggle-row">
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="aktif" id="aktif"
+                                       {% if form_data.aktif == 'on' %}checked{% endif %}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <div class="toggle-text">
+                                <span class="toggle-title">Jadwal Aktif</span>
+                                <span class="form-hint">Jadwal aktif akan membunyikan bel secara otomatis</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── Section 2: Hari & Waktu ─── -->
+            <div class="form-section">
+                <div class="form-section-header">
+                    <div class="form-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="form-section-title">Hari &amp; Waktu</h3>
+                        <p class="form-section-desc">Pilih satu atau lebih hari dan waktu — semua kombinasi akan dibuat otomatis</p>
+                    </div>
+                </div>
+                <div class="form-section-body">
+                    <!-- Multi-day checkboxes (used for both create and edit) -->
+                    <div class="form-field">
+                        <label>Hari</label>
+                        <div class="hari-picker">
+                            <label class="hari-select-all">
+                                <input type="checkbox" id="hari-select-all">
+                                <span>Pilih Semua</span>
+                            </label>
+                            <div class="hari-pills">
+                                {% for value, label in hari_choices %}
+                                <label class="hari-pill">
+                                    <input type="checkbox" name="hari" value="{{ value }}"
+                                           {% if value in form_data.hari_list %}checked{% endif %}>
+                                    <span class="hari-pill-label">{{ label }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Multi-time list (used for both create and edit) -->
+                    <div class="form-field">
+                        <label>Waktu Bel</label>
+                        <div class="time-adder">
+                            <div class="time-adder-input">
+                                <input type="time" id="jam-input">
+                                <button type="button" id="btn-add-jam" class="btn-add-time">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"/>
+                                        <line x1="5" y1="12" x2="19" y2="12"/>
+                                    </svg>
+                                    Tambah
+                                </button>
+                            </div>
+                            <div id="jam-list-container" class="time-tags"></div>
+                            <div id="jam-empty-hint" class="time-empty">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                                Belum ada waktu — tambahkan dengan input di atas
+                            </div>
+                        </div>
+                        <span class="form-hint">Klik Tambah untuk menambahkan waktu ke daftar</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── Section 3: Musik ─── -->
+            <div class="form-section">
+                <div class="form-section-header">
+                    <div class="form-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 18V5l12-2v13"/>
+                            <circle cx="6" cy="18" r="3"/>
+                            <circle cx="18" cy="16" r="3"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="form-section-title">Musik Bel</h3>
+                        <p class="form-section-desc">Pilih nada bel dari file yang sudah diunggah</p>
+                    </div>
+                </div>
+                <div class="form-section-body">
+                    <div class="form-field">
+                        {% if musik_list %}
+                        <select id="musik" name="musik">
+                            <option value="" data-durasi="0">— Tanpa Musik (Default) —</option>
+                            {% for m in musik_list %}
+                            <option value="{{ m.pk }}" data-durasi="{{ m.durasi }}" {% if form_data.musik == m.pk|stringformat:"d" %}selected{% endif %}>
+                                {{ m.nama }} ({{ m.durasi_display }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <span class="form-hint">Durasi musik digunakan untuk validasi agar jadwal tidak bentrok</span>
+                        {% else %}
+                        <div class="no-musik-notice">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="16" x2="12" y2="12"/>
+                                <line x1="12" y1="8" x2="12.01" y2="8"/>
+                            </svg>
+                            <span>Belum ada file musik. <a href="{% url 'musik_list' %}">Unggah musik</a> terlebih dahulu.</span>
+                        </div>
+                        <input type="hidden" name="musik" value="">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Batch summary -->
+            <div class="form-summary form-summary-batch" id="batch-preview" style="display: none;">
+                <div class="form-summary-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 11 12 14 22 4"/>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                </div>
+                <div class="form-summary-body">
+                    <span class="form-summary-label">Ringkasan</span>
+                    <p class="form-summary-text" id="batch-summary-text"></p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+                <a href="{% url 'jadwal_list' %}" class="btn-secondary">Batal</a>
+                <button type="button" class="btn-primary" id="btn-submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Tambah Jadwal
+                </button>
+            </div>
+        </div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Pass Django data to JS without template tags inside script -->
+<div id="jam-data"
+     data-initial='[{% if form_data.jam_list %}{% for j in form_data.jam_list %}"{{ j }}"{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}]'
+     data-is-edit="false"
+     style="display:none;"></div>
+<script>
+(function () {
+    var dataEl = document.getElementById("jam-data");
+    var initialJam = JSON.parse(dataEl.getAttribute("data-initial") || "[]");
+
+    var jamInput = document.getElementById("jam-input");
+    var btnAdd = document.getElementById("btn-add-jam");
+    var btnSubmit = document.getElementById("btn-submit");
+    var listContainer = document.getElementById("jam-list-container");
+    var emptyHint = document.getElementById("jam-empty-hint");
+    var batchPreview = document.getElementById("batch-preview");
+    var batchText = document.getElementById("batch-summary-text");
+    var container = document.getElementById("jadwal-form");
+    var selectAll = document.getElementById("hari-select-all");
+    var hariBoxes = document.querySelectorAll('input[name="hari"]');
+
+    var csrfToken = container.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+    var jamSet = {};
+    for (var i = 0; i < initialJam.length; i++) {
+        jamSet[initialJam[i]] = true;
+    }
+
+    function jamKeys() {
+        return Object.keys(jamSet).sort();
+    }
+
+    function jamCount() {
+        return jamKeys().length;
+    }
+
+    function getCheckedDays() {
+        var result = [];
+        hariBoxes.forEach(function (cb) {
+            if (cb.checked) result.push(cb);
+        });
+        return result;
+    }
+
+    // Select-all toggle
+    selectAll.addEventListener("change", function () {
+        var checked = this.checked;
+        hariBoxes.forEach(function (cb) { cb.checked = checked; });
+        updateBatchPreview();
+    });
+    hariBoxes.forEach(function (cb) {
+        cb.addEventListener("change", function () {
+            var allChecked = true;
+            hariBoxes.forEach(function (c) { if (!c.checked) allChecked = false; });
+            selectAll.checked = allChecked;
+            updateBatchPreview();
+        });
+    });
+
+    // Render time tags
+    function renderJamList() {
+        listContainer.innerHTML = "";
+        var sorted = jamKeys();
+
+        for (var i = 0; i < sorted.length; i++) {
+            (function (jam) {
+                var tag = document.createElement("div");
+                tag.className = "time-tag";
+                tag.innerHTML =
+                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+                    'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' +
+                    'width="13" height="13">' +
+                    '<circle cx="12" cy="12" r="10"/>' +
+                    '<polyline points="12 6 12 12 16 14"/></svg>' +
+                    '<span class="time-tag-value">' + jam + '</span>' +
+                    '<button type="button" class="time-tag-remove" title="Hapus">' +
+                    '&times;</button>';
+
+                tag.querySelector(".time-tag-remove").addEventListener("click", function () {
+                    delete jamSet[jam];
+                    renderJamList();
+                    updateBatchPreview();
+                });
+
+                listContainer.appendChild(tag);
+            })(sorted[i]);
+        }
+
+        emptyHint.style.display = sorted.length > 0 ? "none" : "";
+    }
+
+    // Add a time value
+    function addJam() {
+        var val = jamInput.value;
+        if (!val) { jamInput.focus(); return; }
+        if (jamSet[val]) {
+            jamInput.value = "";
+            jamInput.focus();
+            return;
+        }
+        jamSet[val] = true;
+        jamInput.value = "";
+        jamInput.focus();
+        renderJamList();
+        updateBatchPreview();
+    }
+
+    btnAdd.addEventListener("click", addJam);
+
+    jamInput.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        if (jamInput.value) {
+            addJam();
+        } else if (jamCount() > 0) {
+            submitForm();
+        }
+    });
+
+    // Batch preview
+    function updateBatchPreview() {
+        var checkedDays = getCheckedDays();
+        var total = checkedDays.length * jamCount();
+
+        if (total > 0) {
+            var dayNames = [];
+            for (var i = 0; i < checkedDays.length; i++) {
+                dayNames.push(
+                    checkedDays[i].parentElement.querySelector(".hari-pill-label").textContent
+                );
+            }
+            batchText.innerHTML =
+                "<strong>" + total + " jadwal</strong> akan dibuat &mdash; " +
+                dayNames.join(", ") + " &times; " + jamKeys().join(", ");
+            batchPreview.style.display = "";
+        } else {
+            batchPreview.style.display = "none";
+        }
+    }
+
+    // Build a real form and submit it
+    function submitForm() {
+        // Auto-add pending time
+        var pending = jamInput.value.trim();
+        if (pending && !jamSet[pending]) {
+            jamSet[pending] = true;
+            renderJamList();
+            updateBatchPreview();
+        }
+
+        // Validate
+        var nama = document.getElementById("nama").value.trim();
+        if (!nama) {
+            alert("Nama jadwal tidak boleh kosong.");
+            document.getElementById("nama").focus();
+            return;
+        }
+        if (getCheckedDays().length === 0) {
+            alert("Pilih setidaknya satu hari.");
+            return;
+        }
+        if (jamCount() === 0) {
+            alert("Tambahkan setidaknya satu waktu bel.");
+            jamInput.focus();
+            return;
+        }
+
+        // Build a hidden form
+        var form = document.createElement("form");
+        form.method = "post";
+        form.style.display = "none";
+
+        function addField(name, value) {
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+        }
+
+        addField("csrfmiddlewaretoken", csrfToken);
+        addField("nama", nama);
+
+        // Aktif
+        if (document.getElementById("aktif").checked) {
+            addField("aktif", "on");
+        }
+
+        // Hari
+        var checkedDays = getCheckedDays();
+        for (var i = 0; i < checkedDays.length; i++) {
+            addField("hari", checkedDays[i].value);
+        }
+
+        // Jam
+        var times = jamKeys();
+        for (var j = 0; j < times.length; j++) {
+            addField("jam", times[j]);
+        }
+
+        // Musik
+        var musikEl = document.getElementById("musik");
+        if (musikEl) {
+            addField("musik", musikEl.value);
+        } else {
+            addField("musik", "");
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    btnSubmit.addEventListener("click", submitForm);
+
+    // Initial render
+    renderJamList();
+    updateBatchPreview();
+    var allChecked = true;
+    hariBoxes.forEach(function (c) { if (!c.checked) allChecked = false; });
+    selectAll.checked = allChecked;
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,332 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Tambah Pengecualian — Cobrell{% endblock %}
+
+{% block content %}
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h2 class="page-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                        <line x1="9" y1="16" x2="15" y2="16"/>
+                    </svg>
+                    Tambah Pengecualian
+                </h2>
+                <p class="page-desc">Pilih tanggal dan jadwal bel yang tidak akan berbunyi</p>
+            </div>
+            <a href="{% url 'pengecualian_list' %}" class="btn-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"/>
+                    <polyline points="12 19 5 12 12 5"/>
+                </svg>
+                Kembali
+            </a>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {% if message.tags == 'success' %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+                {% endif %}
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Form -->
+        <form method="post" class="jadwal-form" id="exc-form">
+            {% csrf_token %}
+
+            <!-- ─── Section 1: Tanggal & Alasan ─── -->
+            <div class="form-section">
+                <div class="form-section-header">
+                    <div class="form-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="form-section-title">Tanggal Pengecualian</h3>
+                        <p class="form-section-desc">Pilih tanggal kapan jadwal bel tidak akan berbunyi</p>
+                    </div>
+                </div>
+                <div class="form-section-body">
+                    <div class="form-row-2col">
+                        <div class="form-field">
+                            <label for="tanggal">Tanggal</label>
+                            <input type="date" id="tanggal" name="tanggal"
+                                   value="{{ form_data.tanggal|default:'' }}" required>
+                            <span class="form-hint" id="date-hint">Pilih tanggal untuk melihat jadwal yang tersedia</span>
+                        </div>
+                        <div class="form-field">
+                            <label for="alasan">Alasan <span class="label-optional">(opsional)</span></label>
+                            <input type="text" id="alasan" name="alasan"
+                                   placeholder="Contoh: Libur Nasional, Ujian Semester"
+                                   value="{{ form_data.alasan|default:'' }}">
+                            <span class="form-hint">Keterangan mengapa jadwal dinonaktifkan</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── Section 2: Pilih Jadwal ─── -->
+            <div class="form-section" id="jadwal-section" style="display: none;">
+                <div class="form-section-header">
+                    <div class="form-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="form-section-title">Pilih Jadwal Bel</h3>
+                        <p class="form-section-desc" id="jadwal-section-desc">Centang jadwal yang tidak akan berbunyi pada tanggal tersebut</p>
+                    </div>
+                </div>
+                <div class="form-section-body">
+                    <div id="jadwal-loading" class="exc-loading" style="display: none;">
+                        <div class="spinner"></div>
+                        <span>Memuat jadwal...</span>
+                    </div>
+
+                    <div id="jadwal-empty" class="exc-empty" style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="16" x2="12" y2="12"/>
+                            <line x1="12" y1="8" x2="12.01" y2="8"/>
+                        </svg>
+                        <p>Tidak ada jadwal aktif pada hari tersebut</p>
+                    </div>
+
+                    <div id="jadwal-list-container">
+                        <!-- Schedules loaded via AJAX -->
+                    </div>
+
+                    <div id="select-all-row" class="exc-select-all" style="display: none;">
+                        <label>
+                            <input type="checkbox" id="exc-select-all">
+                            <span>Pilih semua jadwal</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="form-summary form-summary-batch" id="exc-summary" style="display: none;">
+                <div class="form-summary-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 11 12 14 22 4"/>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                </div>
+                <div class="form-summary-body">
+                    <span class="form-summary-label">Ringkasan</span>
+                    <p class="form-summary-text" id="exc-summary-text"></p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+                <a href="{% url 'pengecualian_list' %}" class="btn-secondary">Batal</a>
+                <button type="submit" class="btn-primary" id="btn-submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Tambah Pengecualian
+                </button>
+            </div>
+        </form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const tanggalInput = document.getElementById('tanggal');
+    const jadwalSection = document.getElementById('jadwal-section');
+    const jadwalDesc = document.getElementById('jadwal-section-desc');
+    const jadwalLoading = document.getElementById('jadwal-loading');
+    const jadwalEmpty = document.getElementById('jadwal-empty');
+    const jadwalContainer = document.getElementById('jadwal-list-container');
+    const selectAllRow = document.getElementById('select-all-row');
+    const selectAllCb = document.getElementById('exc-select-all');
+    const summary = document.getElementById('exc-summary');
+    const summaryText = document.getElementById('exc-summary-text');
+    const dateHint = document.getElementById('date-hint');
+    const form = document.getElementById('exc-form');
+
+    function fetchJadwal(date) {
+        jadwalSection.style.display = '';
+        jadwalLoading.style.display = '';
+        jadwalEmpty.style.display = 'none';
+        jadwalContainer.innerHTML = '';
+        selectAllRow.style.display = 'none';
+        summary.style.display = 'none';
+
+        fetch('{% url "pengecualian_jadwal_api" %}?tanggal=' + date)
+            .then(r => r.json())
+            .then(data => {
+                jadwalLoading.style.display = 'none';
+
+                if (data.jadwal.length === 0) {
+                    jadwalEmpty.style.display = '';
+                    dateHint.textContent = 'Hari ' + (data.hari || '—') + ' — tidak ada jadwal aktif';
+                    return;
+                }
+
+                dateHint.textContent = 'Hari ' + data.hari + ' — ' + data.jadwal.length + ' jadwal tersedia';
+                jadwalDesc.textContent = 'Jadwal bel hari ' + data.hari + ' — centang yang ingin dinonaktifkan';
+
+                let html = '';
+
+                // Group-level checkboxes
+                if (data.groups && data.groups.length > 0) {
+                    html += '<div class="exc-group-section">';
+                    html += '<label class="exc-group-label">Pilih per Grup</label>';
+                    html += '<div class="exc-group-grid">';
+                    data.groups.forEach(g => {
+                        const allExcluded = g.all_excluded;
+                        const disabledAttr = allExcluded ? ' disabled' : '';
+                        const disabledClass = allExcluded ? ' exc-group-card-disabled' : '';
+                        const excludedBadge = allExcluded
+                            ? '<span class="exc-already-badge">Semua sudah ada</span>'
+                            : '';
+                        html += '<label class="exc-group-card' + disabledClass + '">' +
+                            '<input type="checkbox" class="group-checkbox" data-group-ids=\'' + JSON.stringify(g.ids) + '\'' + disabledAttr + '>' +
+                            '<div class="exc-group-card-body">' +
+                                '<div class="exc-jadwal-top">' +
+                                    '<span class="exc-group-name">' + g.nama + '</span>' +
+                                    excludedBadge +
+                                '</div>' +
+                                '<span class="exc-group-count">' + g.count + ' jadwal</span>' +
+                            '</div>' +
+                        '</label>';
+                    });
+                    html += '</div></div>';
+                    html += '<div class="exc-divider"><span>atau pilih individual</span></div>';
+                }
+
+                // Individual schedule checkboxes
+                html += '<div class="exc-jadwal-grid">';
+                data.jadwal.forEach(j => {
+                    const disabled = j.already_excluded ? ' disabled' : '';
+                    const excludedClass = j.already_excluded ? ' exc-jadwal-card-disabled' : '';
+                    const excludedBadge = j.already_excluded
+                        ? '<span class="exc-already-badge">Sudah ada</span>'
+                        : '';
+                    html += '<label class="exc-jadwal-card' + excludedClass + '">' +
+                        '<input type="checkbox" name="jadwal" value="' + j.id + '"' + disabled + ' data-jadwal-id="' + j.id + '">' +
+                        '<div class="exc-jadwal-card-body">' +
+                            '<div class="exc-jadwal-top">' +
+                                '<span class="exc-jadwal-time">' + j.jam + '</span>' +
+                                excludedBadge +
+                            '</div>' +
+                            '<span class="exc-jadwal-name">' + j.nama + '</span>' +
+                            '<span class="exc-jadwal-musik">' +
+                                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">' +
+                                '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> ' +
+                                j.musik +
+                            '</span>' +
+                        '</div>' +
+                    '</label>';
+                });
+                html += '</div>';
+                jadwalContainer.innerHTML = html;
+
+                // Bind group checkboxes to toggle individual checkboxes
+                const groupBoxes = jadwalContainer.querySelectorAll('.group-checkbox');
+                groupBoxes.forEach(gcb => {
+                    gcb.addEventListener('change', function() {
+                        const ids = JSON.parse(this.getAttribute('data-group-ids'));
+                        ids.forEach(id => {
+                            const cb = jadwalContainer.querySelector('input[data-jadwal-id="' + id + '"]:not([disabled])');
+                            if (cb) cb.checked = gcb.checked;
+                        });
+                        updateSummary();
+                    });
+                });
+
+                // Show select-all only if there are checkable items
+                const checkable = jadwalContainer.querySelectorAll('input[name="jadwal"]:not([disabled])');
+                if (checkable.length > 1) {
+                    selectAllRow.style.display = '';
+                }
+
+                // Bind change events
+                checkable.forEach(cb => cb.addEventListener('change', updateSummary));
+                selectAllCb.checked = false;
+                updateSummary();
+            })
+            .catch(() => {
+                jadwalLoading.style.display = 'none';
+                jadwalEmpty.style.display = '';
+            });
+    }
+
+    tanggalInput.addEventListener('change', function() {
+        if (this.value) {
+            fetchJadwal(this.value);
+        } else {
+            jadwalSection.style.display = 'none';
+            summary.style.display = 'none';
+            dateHint.textContent = 'Pilih tanggal untuk melihat jadwal yang tersedia';
+        }
+    });
+
+    // Select all toggle
+    selectAllCb.addEventListener('change', function() {
+        const boxes = jadwalContainer.querySelectorAll('input[name="jadwal"]:not([disabled])');
+        boxes.forEach(cb => cb.checked = this.checked);
+        updateSummary();
+    });
+
+    function updateSummary() {
+        const checked = jadwalContainer.querySelectorAll('input[name="jadwal"]:checked');
+        if (checked.length > 0) {
+            summaryText.innerHTML = '<strong>' + checked.length + ' jadwal</strong> akan dinonaktifkan pada tanggal yang dipilih';
+            summary.style.display = '';
+        } else {
+            summary.style.display = 'none';
+        }
+
+        // Sync select-all
+        const all = jadwalContainer.querySelectorAll('input[name="jadwal"]:not([disabled])');
+        selectAllCb.checked = all.length > 0 && [...all].every(c => c.checked);
+    }
+
+    // Validation
+    form.addEventListener('submit', function(e) {
+        const checked = jadwalContainer.querySelectorAll('input[name="jadwal"]:checked');
+        if (checked.length === 0) {
+            e.preventDefault();
+            alert('Pilih setidaknya satu jadwal bel.');
+        }
+    });
+
+    // If form_data has a date (from error re-render), trigger fetch
+    {% if form_data.tanggal %}
+    fetchJadwal('{{ form_data.tanggal }}');
+    {% endif %}
+})();
+</script>
+{% endblock %}

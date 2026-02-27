@@ -1,0 +1,353 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Dashboard — Cobrell{% endblock %}
+
+{% block content %}
+        <!-- Server Clock Banner -->
+        <div class="clock-banner">
+            <div class="clock-left">
+                <div class="clock-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="clock-time" id="server-time">{{ server_time }}</div>
+                    <div class="clock-date" id="server-date">{{ server_date }}</div>
+                </div>
+            </div>
+            <div class="clock-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                Waktu Server
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <!-- Total Jadwal -->
+            <div class="stat-card">
+                <div class="stat-icon stat-icon--blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                </div>
+                <div class="stat-body">
+                    <span class="stat-label">Total Jadwal</span>
+                    <span class="stat-value">{{ total_jadwal }}</span>
+                </div>
+            </div>
+
+            <!-- Total Musik -->
+            <div class="stat-card">
+                <div class="stat-icon stat-icon--purple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
+                    </svg>
+                </div>
+                <div class="stat-body">
+                    <span class="stat-label">Total Musik</span>
+                    <span class="stat-value">{{ total_musik }}</span>
+                </div>
+            </div>
+
+            <!-- Next Bell -->
+            <div class="stat-card stat-card--highlight">
+                <div class="stat-icon stat-icon--amber">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                </div>
+                <div class="stat-body">
+                    <span class="stat-label">Bel Selanjutnya</span>
+                    <span class="stat-value" id="next-bell-time">{{ next_bell_time }}</span>
+                    <span class="stat-sub" id="next-bell-info">
+                        {% if next_bell_day %}{{ next_bell_day }} &mdash; {% endif %}{{ next_bell_name }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div class="calendar-card">
+            <div class="calendar-header">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Kalender Jadwal
+                </h2>
+                <div class="calendar-nav">
+                    <button type="button" class="cal-nav-btn" id="cal-prev" title="Bulan sebelumnya">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                            <polyline points="15 18 9 12 15 6"/>
+                        </svg>
+                    </button>
+                    <span class="cal-month-label" id="cal-month-label">{{ cal_month_label }}</span>
+                    <button type="button" class="cal-nav-btn" id="cal-next" title="Bulan berikutnya">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="calendar-grid-wrapper">
+                <!-- Day-of-week header -->
+                <div class="cal-dow-row">
+                    <div class="cal-dow">Sen</div>
+                    <div class="cal-dow">Sel</div>
+                    <div class="cal-dow">Rab</div>
+                    <div class="cal-dow">Kam</div>
+                    <div class="cal-dow">Jum</div>
+                    <div class="cal-dow cal-dow--weekend">Sab</div>
+                    <div class="cal-dow cal-dow--weekend">Min</div>
+                </div>
+                <!-- Calendar grid: server-side rendered for the current month -->
+                <div class="cal-grid" id="cal-grid">
+                    {% for _ in cal_leading_blanks %}
+                    <div class="cal-cell cal-cell--blank"></div>
+                    {% endfor %}
+                    {% for d in cal_days %}
+                    <div class="cal-cell{% if d.is_today %} cal-cell--today{% endif %}{% if d.is_weekend %} cal-cell--weekend{% endif %}" data-day="{{ d.day }}">
+                        <span class="cal-day-num">{{ d.day }}</span>
+                        {% if d.bell_count > 0 %}
+                        <span class="cal-bell-count">{{ d.bell_count }} bel</span>
+                        {% endif %}
+                        {% if d.exc_count > 0 %}
+                        <span class="cal-exc-count">{{ d.exc_count }} pengecualian</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Day Detail Panel (shown when a date is clicked) -->
+        <div class="day-detail-card" id="day-detail" style="display:none;">
+            <div class="day-detail-header">
+                <h3 id="day-detail-title"></h3>
+                <button type="button" class="day-detail-close" id="day-detail-close" title="Tutup">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="day-detail-body" id="day-detail-body"></div>
+        </div>
+
+        <!-- Config data for JS -->
+        <div id="cal-config"
+             data-api-url="{% url 'calendar_data_api' %}"
+             data-server-time-url="{% url 'server_time_api' %}"
+             data-today-year="{{ today_year }}"
+             data-today-month="{{ today_month }}"
+             data-today-day="{{ today_day }}"
+             style="display:none;"></div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        (function() {
+            var cfg = document.getElementById('cal-config');
+            if (!cfg) return;
+            var ds = cfg.dataset;
+
+            var API_URL      = ds.apiUrl;
+            var TIME_API_URL = ds.serverTimeUrl;
+            var TODAY_Y = parseInt(ds.todayYear, 10);
+            var TODAY_M = parseInt(ds.todayMonth, 10);
+            var TODAY_D = parseInt(ds.todayDay, 10);
+
+            /* ── Server clock polling ── */
+            var timeEl   = document.getElementById('server-time');
+            var dateEl   = document.getElementById('server-date');
+            var bellEl   = document.getElementById('next-bell-time');
+            var bellInfo = document.getElementById('next-bell-info');
+
+            function fetchTime() {
+                fetch(TIME_API_URL)
+                    .then(function(res) { return res.ok ? res.json() : null; })
+                    .then(function(data) {
+                        if (!data) return;
+                        timeEl.textContent  = data.time;
+                        dateEl.textContent  = data.date;
+                        bellEl.textContent  = data.next_bell_time;
+                        bellInfo.textContent = data.next_bell_day
+                            ? data.next_bell_day + ' \u2014 ' + data.next_bell_name
+                            : data.next_bell_name;
+                    })
+                    .catch(function() {});
+            }
+            setInterval(fetchTime, 1000);
+
+            /* ── Calendar ── */
+            var MONTH_NAMES = [
+                'Januari','Februari','Maret','April','Mei','Juni',
+                'Juli','Agustus','September','Oktober','November','Desember'
+            ];
+
+            var curYear  = TODAY_Y;
+            var curMonth = TODAY_M;
+
+            var gridEl      = document.getElementById('cal-grid');
+            var labelEl     = document.getElementById('cal-month-label');
+            var prevBtn     = document.getElementById('cal-prev');
+            var nextBtn     = document.getElementById('cal-next');
+            var detailEl    = document.getElementById('day-detail');
+            var detailTitle = document.getElementById('day-detail-title');
+            var detailBody  = document.getElementById('day-detail-body');
+            var closeBtn    = document.getElementById('day-detail-close');
+
+            /* Attach click handlers to existing server-rendered cells */
+            function bindCellClicks() {
+                var cells = gridEl.querySelectorAll('.cal-cell[data-day]');
+                for (var i = 0; i < cells.length; i++) {
+                    cells[i].addEventListener('click', onDayClick);
+                }
+            }
+            bindCellClicks();
+
+            prevBtn.addEventListener('click', function() { changeMonth(-1); });
+            nextBtn.addEventListener('click', function() { changeMonth(1); });
+            closeBtn.addEventListener('click', function() { detailEl.style.display = 'none'; });
+
+            function changeMonth(delta) {
+                curMonth += delta;
+                if (curMonth < 1)  { curMonth = 12; curYear--; }
+                if (curMonth > 12) { curMonth = 1;  curYear++; }
+                detailEl.style.display = 'none';
+                loadMonth();
+            }
+
+            function loadMonth() {
+                labelEl.textContent = MONTH_NAMES[curMonth - 1] + ' ' + curYear;
+                gridEl.innerHTML = '<div class="cal-loading">Memuat\u2026</div>';
+
+                fetch(API_URL + '?year=' + curYear + '&month=' + curMonth)
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) { renderGrid(data.days); })
+                    .catch(function() {
+                        gridEl.innerHTML = '<div class="cal-loading">Gagal memuat data</div>';
+                    });
+            }
+
+            function renderGrid(days) {
+                gridEl.innerHTML = '';
+
+                var firstDate = new Date(curYear, curMonth - 1, 1);
+                var startDow  = (firstDate.getDay() + 6) % 7;
+
+                for (var b = 0; b < startDow; b++) {
+                    var blank = document.createElement('div');
+                    blank.className = 'cal-cell cal-cell--blank';
+                    gridEl.appendChild(blank);
+                }
+
+                for (var i = 0; i < days.length; i++) {
+                    var d = days[i];
+                    var cell = document.createElement('div');
+                    cell.className = 'cal-cell';
+
+                    if (curYear === TODAY_Y && curMonth === TODAY_M && d.day === TODAY_D) {
+                        cell.classList.add('cal-cell--today');
+                    }
+                    if (d.weekday === 'sabtu' || d.weekday === 'minggu') {
+                        cell.classList.add('cal-cell--weekend');
+                    }
+
+                    var numSpan = document.createElement('span');
+                    numSpan.className = 'cal-day-num';
+                    numSpan.textContent = d.day;
+                    cell.appendChild(numSpan);
+
+                    if (d.bell_count > 0) {
+                        var bellTag = document.createElement('span');
+                        bellTag.className = 'cal-bell-count';
+                        bellTag.textContent = d.bell_count + ' bel';
+                        cell.appendChild(bellTag);
+                    }
+                    if (d.exc_count > 0) {
+                        var excTag = document.createElement('span');
+                        excTag.className = 'cal-exc-count';
+                        excTag.textContent = d.exc_count + ' pengecualian';
+                        cell.appendChild(excTag);
+                    }
+
+                    cell.dataset.day = d.day;
+                    cell.addEventListener('click', onDayClick);
+                    gridEl.appendChild(cell);
+                }
+            }
+
+            function onDayClick(e) {
+                var dayNum = parseInt(e.currentTarget.dataset.day, 10);
+                loadDayDetail(dayNum);
+            }
+
+            function loadDayDetail(day) {
+                detailEl.style.display = 'block';
+                detailTitle.textContent = 'Memuat\u2026';
+                detailBody.innerHTML = '';
+
+                fetch(API_URL + '?year=' + curYear + '&month=' + curMonth + '&day=' + day)
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        detailTitle.textContent = data.date;
+
+                        if (!data.items || data.items.length === 0) {
+                            detailBody.innerHTML = '<div class="day-empty"><p>Tidak ada jadwal bel pada hari ini.</p></div>';
+                            return;
+                        }
+
+                        var html = '<div class="day-schedule-list">';
+                        for (var i = 0; i < data.items.length; i++) {
+                            var it = data.items[i];
+                            var cls = 'day-schedule-row';
+                            if (it.excluded) cls += ' day-schedule-row--excluded';
+
+                            html += '<div class="' + cls + '">';
+                            html += '<div class="day-sch-time">' + esc(it.jam) + '</div>';
+                            html += '<div class="day-sch-info">';
+                            html += '<span class="day-sch-name">' + esc(it.nama) + '</span>';
+                            html += '<span class="day-sch-musik">' + esc(it.musik) + '</span>';
+                            if (it.excluded) {
+                                html += '<span class="day-sch-exc">';
+                                html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">';
+                                html += '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>';
+                                html += '</svg> Dikecualikan';
+                                if (it.alasan) html += ': ' + esc(it.alasan);
+                                html += '</span>';
+                            }
+                            html += '</div></div>';
+                        }
+                        html += '</div>';
+                        detailBody.innerHTML = html;
+                    })
+                    .catch(function() {
+                        detailBody.innerHTML = '<p class="day-empty">Gagal memuat detail.</p>';
+                    });
+            }
+
+            function esc(s) {
+                var d = document.createElement('div');
+                d.appendChild(document.createTextNode(s));
+                return d.innerHTML;
+            }
+        })();
+    </script>
+{% endblock %}

@@ -1,0 +1,580 @@
+/* ==========================================================
+   Cobrell — School Bell System  |  Login Page Styles
+   Optimised for Raspberry Pi OS (Chromium / kiosk screens)
+   ========================================================== */
+
+/* ---------- Reset & Base ---------- */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #3b82f6;
+    --accent: #f59e0b;
+    --bg: #f1f5f9;
+    --surface: #ffffff;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: #cbd5e1;
+    --error: #ef4444;
+    --success: #22c55e;
+    --radius: 12px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+    --shadow-md: 0 4px 24px rgba(0,0,0,.10);
+    --shadow-lg: 0 12px 48px rgba(0,0,0,.12);
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ---------- Animated Background ---------- */
+.bg-rings {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid rgba(37, 99, 235, .06);
+}
+
+.ring-1 {
+    width: 600px; height: 600px;
+    top: -200px; right: -150px;
+    animation: pulse-ring 8s ease-in-out infinite;
+}
+
+.ring-2 {
+    width: 400px; height: 400px;
+    bottom: -100px; left: -100px;
+    animation: pulse-ring 10s ease-in-out 2s infinite;
+}
+
+.ring-3 {
+    width: 300px; height: 300px;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse-ring 12s ease-in-out 4s infinite;
+}
+
+@keyframes pulse-ring {
+    0%, 100% { transform: scale(1); opacity: .4; }
+    50% { transform: scale(1.15); opacity: .8; }
+}
+
+/* ---------- Login Container ---------- */
+.login-container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    width: min(960px, 94vw);
+    min-height: 560px;
+    background: var(--surface);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+/* ---------- Brand Panel (Left) ---------- */
+.brand-panel {
+    flex: 0 0 42%;
+    background: linear-gradient(160deg, var(--primary) 0%, #1e3a8a 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.brand-panel::before {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    background: rgba(255,255,255,.05);
+    border-radius: 50%;
+    top: -80px; right: -100px;
+}
+
+.brand-panel::after {
+    content: '';
+    position: absolute;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,.04);
+    border-radius: 50%;
+    bottom: -60px; left: -60px;
+}
+
+.brand-content {
+    position: relative;
+    z-index: 1;
+}
+
+.bell-icon {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 1.2rem;
+    animation: bell-swing 3s ease-in-out infinite;
+    transform-origin: top center;
+}
+
+.bell-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+@keyframes bell-swing {
+    0%, 100% { transform: rotate(0deg); }
+    15% { transform: rotate(8deg); }
+    30% { transform: rotate(-6deg); }
+    45% { transform: rotate(4deg); }
+    60% { transform: rotate(-2deg); }
+    75% { transform: rotate(0deg); }
+}
+
+.brand-name {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: .25rem;
+}
+
+.brand-tagline {
+    font-size: .95rem;
+    opacity: .8;
+    font-weight: 400;
+    margin-bottom: 2rem;
+}
+
+.brand-features {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-size: .85rem;
+    opacity: .85;
+}
+
+.feature-icon {
+    font-size: 1.1rem;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,.12);
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.brand-footer {
+    position: relative;
+    z-index: 1;
+    font-size: .72rem;
+    opacity: .5;
+}
+
+/* ---------- Form Panel (Right) ---------- */
+.form-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 3rem;
+}
+
+.form-wrapper {
+    width: 100%;
+    max-width: 360px;
+}
+
+.form-header {
+    margin-bottom: 1.75rem;
+}
+
+.form-header h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: .35rem;
+}
+
+.form-header p {
+    font-size: .9rem;
+    color: var(--text-muted);
+}
+
+/* ---------- Messages / Alerts ---------- */
+.messages {
+    margin-bottom: 1rem;
+}
+
+.alert {
+    padding: .7rem 1rem;
+    border-radius: var(--radius);
+    font-size: .85rem;
+    font-weight: 500;
+    margin-bottom: .5rem;
+}
+
+.alert-error {
+    background: #fef2f2;
+    color: var(--error);
+    border: 1px solid #fecaca;
+}
+
+.alert-success {
+    background: #f0fdf4;
+    color: var(--success);
+    border: 1px solid #bbf7d0;
+}
+
+/* ---------- Form ---------- */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: .4rem;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.input-wrapper.focused,
+.input-wrapper:focus-within {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .15);
+}
+
+.input-icon {
+    position: absolute;
+    left: .85rem;
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: .72rem .85rem .72rem 2.7rem;
+    font-size: .92rem;
+    font-family: inherit;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    outline: none;
+}
+
+.input-wrapper input::placeholder {
+    color: #94a3b8;
+}
+
+.field-error {
+    display: block;
+    font-size: .78rem;
+    color: var(--error);
+    margin-top: .3rem;
+}
+
+/* ---------- Checkbox ---------- */
+.form-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    font-size: .82rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* ---------- Button ---------- */
+.btn-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    width: 100%;
+    padding: .8rem;
+    font-size: .95rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: transform .15s, box-shadow .2s;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, .35);
+    margin-top: .3rem;
+}
+
+.btn-login svg {
+    width: 18px;
+    height: 18px;
+    transition: transform .2s;
+}
+
+.btn-login:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, .45);
+}
+
+.btn-login:hover svg {
+    transform: translateX(3px);
+}
+
+.btn-login:active {
+    transform: translateY(0);
+}
+
+/* ---------- Form Footer ---------- */
+.form-footer {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.device-info {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .78rem;
+    color: var(--text-muted);
+    background: var(--bg);
+    padding: .45rem .9rem;
+    border-radius: 999px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px) {
+    .login-container {
+        flex-direction: column;
+        min-height: auto;
+        border-radius: 16px;
+    }
+
+    .brand-panel {
+        flex: none;
+        padding: 1.5rem 1.5rem 1.2rem;
+        text-align: center;
+    }
+
+    .bell-icon {
+        margin: 0 auto .8rem;
+        width: 56px;
+        height: 56px;
+    }
+
+    .brand-features {
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: .5rem;
+    }
+
+    .feature-item {
+        font-size: .75rem;
+    }
+
+    .brand-footer {
+        display: none;
+    }
+
+    .form-panel {
+        padding: 1.5rem 1.5rem 2rem;
+    }
+}
+
+/* ---------- Kiosk / touch-friendly on small Pi screens ---------- */
+@media (max-width: 480px) {
+    html { font-size: 15px; }
+
+    .login-container {
+        width: 100vw;
+        min-height: 100vh;
+        border-radius: 0;
+    }
+
+    .brand-panel {
+        border-radius: 0;
+    }
+
+    .form-panel {
+        padding: 1.2rem;
+    }
+
+    .input-wrapper input {
+        padding-top: .85rem;
+        padding-bottom: .85rem;
+        font-size: 1rem;
+    }
+
+    .btn-login {
+        padding: .95rem;
+        font-size: 1rem;
+    }
+}
+
+/* ==========================================================
+   Registration / Setup Page — Additional Styles
+   ========================================================== */
+
+/* ---------- Setup Badge ---------- */
+.setup-badge {
+    display: inline-block;
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--primary);
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    padding: .3rem .75rem;
+    border-radius: 999px;
+    margin-bottom: .75rem;
+}
+
+/* ---------- Setup Steps (left panel) ---------- */
+.setup-steps {
+    display: flex;
+    flex-direction: column;
+    gap: .9rem;
+    margin-top: 2rem;
+}
+
+.setup-step {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    opacity: .5;
+    transition: opacity .3s;
+}
+
+.setup-step.active {
+    opacity: 1;
+}
+
+.step-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.15);
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1.5px solid rgba(255,255,255,.3);
+}
+
+.setup-step.active .step-number {
+    background: rgba(255,255,255,.25);
+    border-color: #fff;
+}
+
+.step-text {
+    display: flex;
+    flex-direction: column;
+    gap: .1rem;
+}
+
+.step-text strong {
+    font-size: .85rem;
+    font-weight: 600;
+}
+
+.step-text span {
+    font-size: .75rem;
+    opacity: .7;
+}
+
+/* ---------- Register Button variant ---------- */
+.btn-register {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    box-shadow: 0 4px 14px rgba(34, 197, 94, .35);
+}
+
+.btn-register:hover {
+    box-shadow: 0 6px 20px rgba(34, 197, 94, .45);
+}
+
+/* ---------- Setup brand panel gradient ---------- */
+.brand-panel--setup {
+    background: linear-gradient(160deg, #059669 0%, #065f46 100%);
+}
+
+/* ---------- Responsive adjustments for register ---------- */
+@media (max-width: 720px) {
+    .setup-steps {
+        flex-direction: row;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .step-text span {
+        display: none;
+    }
+
+    .setup-badge {
+        margin-bottom: .5rem;
+    }
+}

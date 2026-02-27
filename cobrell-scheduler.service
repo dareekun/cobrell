@@ -1,0 +1,51 @@
+# =============================================================
+#  systemd service for Cobrell Bell Scheduler
+#  Install on Raspberry Pi:
+#
+#    sudo cp cobrell-scheduler.service /etc/systemd/system/
+#    sudo systemctl daemon-reload
+#    sudo systemctl enable cobrell-scheduler
+#    sudo systemctl start cobrell-scheduler
+#
+#  Check status:
+#    sudo systemctl status cobrell-scheduler
+#
+#  View logs:
+#    sudo journalctl -u cobrell-scheduler -f
+#
+#  Command:
+#   python manage.py checkdeps            # Cek & install dependensi
+#   python manage.py checkdeps --dry-run  # Cek saja tanpa install
+#   python manage.py runscheduler         # Auto-cek lalu jalankan scheduler
+#   python manage.py runscheduler --skip-deps  # Langsung jalankan tanpa cek
+#
+# =============================================================
+
+[Unit]
+Description=Cobrell Bell Scheduler — plays audio at scheduled times
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+
+# Adjust this path to your actual project directory
+WorkingDirectory=/home/pi/cobrell
+ExecStart=/home/pi/cobrell/venv/bin/python manage.py runscheduler
+
+# Audio access — required for 3.5 mm jack on RPi
+Environment=DISPLAY=:0
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+
+# Restart on failure
+Restart=on-failure
+RestartSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cobrell-scheduler
+
+[Install]
+WantedBy=multi-user.target

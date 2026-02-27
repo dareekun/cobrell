@@ -1,0 +1,396 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Musik Bel — Cobrell{% endblock %}
+
+{% block content %}
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h2 class="page-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
+                    </svg>
+                    Musik Bel
+                </h2>
+                <p class="page-desc">Kelola file audio yang digunakan sebagai nada bel sekolah</p>
+            </div>
+            <div class="header-actions">
+                <button type="button" id="btn-stop-audio" class="btn-secondary btn-stop-server" disabled title="Tidak ada audio yang diputar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="6" y="6" width="12" height="12" rx="1"/>
+                    </svg>
+                    <span id="stop-btn-text">Stop Audio</span>
+                </button>
+                <button class="btn-primary" onclick="document.getElementById('upload-panel').classList.toggle('hidden')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Upload Musik
+            </button>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {% if message.tags == 'success' %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+                {% endif %}
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Upload Panel -->
+        <div id="upload-panel" class="upload-card {% if not messages or not messages.0.tags == 'error' %}hidden{% endif %}">
+            <div class="upload-header">
+                <h3>Upload File Musik</h3>
+                <button class="btn-close" onclick="document.getElementById('upload-panel').classList.add('hidden')" title="Tutup">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <form method="post" enctype="multipart/form-data" class="upload-form">
+                {% csrf_token %}
+                <div class="upload-form-grid">
+                    <div class="form-group">
+                        <label for="nama">Nama Musik</label>
+                        <input type="text" id="nama" name="nama" placeholder="Contoh: Bel Masuk Pagi"
+                               value="{{ form_nama|default:'' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="file">File Audio</label>
+                        <div class="file-input-wrapper" id="file-drop-zone">
+                            <input type="file" id="file" name="file"
+                                   accept=".mp3,.wav,.ogg,.flac,.aac,.wma,.m4a,audio/*" required>
+                            <div class="file-input-display">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                <span class="file-label" id="file-label">Klik atau seret file ke sini</span>
+                                <span class="file-hint">MP3, WAV, OGG, FLAC, AAC, WMA, M4A — Maks 20MB</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="upload-actions">
+                    <button type="submit" class="btn-primary btn-upload">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Unggah
+                    </button>
+                </div>
+            </form>
+            <div class="format-info">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                <span>Hanya file audio yang dapat diputar oleh Python (pygame/playsound) yang diizinkan.</span>
+            </div>
+        </div>
+
+        <!-- Music List -->
+        <div class="table-card">
+            <div class="table-header">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
+                    </svg>
+                    Daftar Musik
+                </h2>
+                <span class="table-count">{{ musik_list|length }} file</span>
+            </div>
+
+            {% if musik_list %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="th-no">No</th>
+                            <th>Nama</th>
+                            <th>Durasi</th>
+                            <th>Preview</th>
+                            <th>Diunggah</th>
+                            <th class="th-action">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in musik_list %}
+                        <tr>
+                            <td class="td-no">{{ forloop.counter }}</td>
+                            <td class="td-nama">
+                                <div class="musik-name-cell">
+                                    <div class="musik-icon-sm">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M9 18V5l12-2v13"/>
+                                            <circle cx="6" cy="18" r="3"/>
+                                            <circle cx="18" cy="16" r="3"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <span class="musik-title">{{ m.nama }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="td-durasi">
+                                <span class="durasi-badge">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <polyline points="12 6 12 12 16 14"/>
+                                    </svg>
+                                    {{ m.durasi_display }}
+                                </span>
+                            </td>
+                            <td class="td-preview">
+                                {% if m.file %}
+                                <audio controls preload="none" class="audio-player">
+                                    <source src="{{ m.file.url }}">
+                                </audio>
+                                {% else %}
+                                <span class="no-musik">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="td-date">{{ m.created_at|date:"d M Y, H:i" }}</td>
+                            <td class="td-action">
+                                <div class="action-buttons">
+                                    <button type="button" class="btn-play btn-server-play" 
+                                            data-url="{% url 'musik_test_play' m.pk %}"
+                                            data-name="{{ m.nama }}"
+                                            title="Putar di Server">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polygon points="5 3 19 12 5 21 5 3"/>
+                                        </svg>
+                                    </button>
+                                    <form method="post" action="{% url 'musik_delete' m.pk %}"
+                                          onsubmit="return confirm('Hapus musik &quot;{{ m.nama }}&quot;?')"
+                                          style="display:inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-delete" title="Hapus">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="3 6 5 6 21 6"/>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                                <line x1="10" y1="11" x2="10" y2="17"/>
+                                            <line x1="14" y1="11" x2="14" y2="17"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="48" height="48">
+                    <path d="M9 18V5l12-2v13"/>
+                    <circle cx="6" cy="18" r="3"/>
+                    <circle cx="18" cy="16" r="3"/>
+                </svg>
+                <h3>Belum Ada Musik</h3>
+                <p>Upload file musik untuk digunakan sebagai nada bel.</p>
+            </div>
+            {% endif %}
+        </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ── CSRF token helper ──
+    function getCsrfToken() {
+        const el = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (el) return el.value;
+        const cookie = document.cookie.split('; ').find(c => c.startsWith('csrftoken='));
+        return cookie ? cookie.split('=')[1] : '';
+    }
+
+    // ── Playback state ──
+    let isPlaying = false;
+    let currentName = '';
+    const STATUS_URL = '{% url "playback_status_api" %}';
+    const STOP_URL = '{% url "musik_stop_play" %}';
+
+    const btnStop = document.getElementById('btn-stop-audio');
+    const stopText = document.getElementById('stop-btn-text');
+    const playButtons = document.querySelectorAll('.btn-server-play');
+
+    // ── Update UI based on playback status ──
+    function updatePlaybackUI(playing, name) {
+        isPlaying = playing;
+        currentName = name || '';
+
+        // Stop button
+        if (isPlaying) {
+            btnStop.disabled = false;
+            btnStop.classList.add('is-active');
+            btnStop.title = 'Hentikan: ' + currentName;
+            stopText.textContent = currentName ? ('⏹ ' + currentName) : 'Stop Audio';
+        } else {
+            btnStop.disabled = true;
+            btnStop.classList.remove('is-active');
+            btnStop.title = 'Tidak ada audio yang diputar';
+            stopText.textContent = 'Stop Audio';
+        }
+
+        // Play buttons in table
+        playButtons.forEach(btn => {
+            if (isPlaying) {
+                btn.disabled = true;
+                btn.classList.add('is-disabled');
+                btn.title = 'Sedang memutar: ' + currentName;
+            } else {
+                btn.disabled = false;
+                btn.classList.remove('is-disabled');
+                btn.title = 'Putar di Server';
+            }
+        });
+    }
+
+    // ── Poll playback status every 1s ──
+    function pollStatus() {
+        fetch(STATUS_URL)
+            .then(r => r.json())
+            .then(data => updatePlaybackUI(data.is_playing, data.current_name))
+            .catch(() => {});
+    }
+    setInterval(pollStatus, 1000);
+    pollStatus(); // initial check
+
+    // ── Play button click → AJAX POST ──
+    playButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (isPlaying) return;
+            const url = this.dataset.url;
+            const name = this.dataset.name;
+
+            // Optimistic UI
+            updatePlaybackUI(true, name);
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken(),
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'error') {
+                    showToast(data.message, 'error');
+                    updatePlaybackUI(false, '');
+                }
+            })
+            .catch(() => {
+                showToast('Gagal memutar audio', 'error');
+                updatePlaybackUI(false, '');
+            });
+        });
+    });
+
+    // ── Stop button click → AJAX POST ──
+    btnStop.addEventListener('click', function() {
+        if (!isPlaying) return;
+
+        fetch(STOP_URL, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(r => r.json())
+        .then(data => {
+            updatePlaybackUI(false, '');
+        })
+        .catch(() => {
+            updatePlaybackUI(false, '');
+        });
+    });
+
+    // ── Toast notification ──
+    function showToast(message, type) {
+        const container = document.querySelector('.messages-container') || (() => {
+            const div = document.createElement('div');
+            div.className = 'messages-container';
+            const pageHeader = document.querySelector('.page-header');
+            pageHeader.parentNode.insertBefore(div, pageHeader.nextSibling);
+            return div;
+        })();
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-' + (type === 'error' ? 'error' : 'success');
+        alert.textContent = message;
+        container.appendChild(alert);
+        setTimeout(() => alert.remove(), 4000);
+    }
+
+    // ── File input display ──
+    const fileInput = document.getElementById('file');
+    const fileLabel = document.getElementById('file-label');
+    const dropZone  = document.getElementById('file-drop-zone');
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                fileLabel.textContent = this.files[0].name;
+                dropZone.classList.add('has-file');
+            } else {
+                fileLabel.textContent = 'Klik atau seret file ke sini';
+                dropZone.classList.remove('has-file');
+            }
+        });
+
+        // Drag & drop
+        ['dragenter', 'dragover'].forEach(evt => {
+            dropZone.addEventListener(evt, e => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+        });
+        ['dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, e => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+            });
+        });
+        dropZone.addEventListener('drop', e => {
+            fileInput.files = e.dataTransfer.files;
+            fileInput.dispatchEvent(new Event('change'));
+        });
+    }
+
+    // Show upload panel if there are error messages
+    const uploadPanel = document.getElementById('upload-panel');
+    const hasErrorAlert = document.querySelector('.messages-container .alert-error, .messages-container .alert-danger');
+
+    if (uploadPanel && hasErrorAlert) {
+        uploadPanel.classList.remove('hidden');
+    }
+</script>
+{% endblock %}
