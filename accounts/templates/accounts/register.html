@@ -143,6 +143,42 @@
                         </div>
                     </div>
 
+                    <div class="form-divider">
+                        <span>Pemulihan Password</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="security_question">Pertanyaan Keamanan</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                            <select id="security_question" name="security_question" required>
+                                <option value="">— Pilih pertanyaan keamanan —</option>
+                                {% for q in security_questions %}
+                                <option value="{{ q }}" {% if selected_question == q %}selected{% endif %}>{{ q }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="security_answer">Jawaban Keamanan</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            <input type="text" id="security_answer" name="security_answer"
+                                   placeholder="Masukkan jawaban Anda"
+                                   value="{{ security_answer|default:'' }}" required>
+                        </div>
+                        <span class="field-hint">Jawaban ini digunakan untuk mereset password jika lupa.</span>
+                    </div>
+
                     <button type="submit" class="btn-login btn-register">
                         <span>Buat Akun &amp; Mulai</span>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"

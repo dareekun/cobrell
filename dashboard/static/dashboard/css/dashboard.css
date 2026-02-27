@@ -2614,3 +2614,174 @@ tbody tr:hover {
     }
 }
 
+/* ==========================================================
+   Sidebar Actions (Change Password + Logout buttons)
+   ========================================================== */
+.sidebar-actions {
+    display: flex;
+    align-items: center;
+    gap: .25rem;
+}
+
+.btn-sidebar-action {
+    color: rgba(255,255,255,.4);
+    transition: color .15s;
+    padding: .3rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.btn-sidebar-action:hover {
+    color: #60a5fa;
+}
+
+.btn-sidebar-action svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ==========================================================
+   Change Password / Settings Form
+   ========================================================== */
+.form-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    max-width: 520px;
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.settings-form-group label {
+    display: block;
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: .4rem;
+}
+
+.settings-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.settings-input-wrapper:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .15);
+}
+
+.settings-input-icon {
+    position: absolute;
+    left: .85rem;
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+.settings-input-wrapper input {
+    width: 100%;
+    padding: .72rem .85rem .72rem 2.7rem;
+    font-size: .92rem;
+    font-family: inherit;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    outline: none;
+}
+
+.settings-input-wrapper input::placeholder {
+    color: #94a3b8;
+}
+
+.settings-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .75rem;
+    margin-top: .5rem;
+}
+
+.btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    padding: .6rem 1.2rem;
+    font-size: .85rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+}
+
+.btn-cancel:hover {
+    background: #e2e8f0;
+    color: var(--text);
+}
+
+.btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .6rem 1.4rem;
+    font-size: .85rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: transform .15s, box-shadow .2s;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, .3);
+}
+
+.btn-save:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, .4);
+}
+
+.btn-save:active {
+    transform: translateY(0);
+}
+
+/* Alert boxes */
+.alert-box {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .7rem 1rem;
+    border-radius: var(--radius);
+    font-size: .85rem;
+    font-weight: 500;
+    margin-bottom: .5rem;
+}
+
+.alert-box--error {
+    background: #fef2f2;
+    color: #ef4444;
+    border: 1px solid #fecaca;
+}
+
+.alert-box--success {
+    background: #f0fdf4;
+    color: #22c55e;
+    border: 1px solid #bbf7d0;
+}

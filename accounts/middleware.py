@@ -12,7 +12,7 @@ class SetupCheckMiddleware:
     """
 
     # URLs that are always allowed (even before setup)
-    ALLOWED_PATHS = ('/register/', '/static/')
+    ALLOWED_PATHS = ('/register/', '/static/', '/forgot-password/', '/recovery/')
 
     def __init__(self, get_response):
         self.get_response = get_response
